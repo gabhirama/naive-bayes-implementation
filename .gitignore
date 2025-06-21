@@ -1,2 +1,7 @@
 credentials.json
 Screenshot 2025-06-20 231433.png
+spam_content.json
+ham_content.json
+token.json
+__pycache__
+gmail_api.ipynb
