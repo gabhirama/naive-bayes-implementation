@@ -54,7 +54,6 @@ class TFNaiveBayesClassifier:
         self.vocab_size = len(self.vocab)
         self.p_spam = (len(spam_emails) + self.laplace_smoothing_factor) / (len(spam_emails) + len(ham_emails) + self.laplace_smoothing_factor * 2)
         self.p_ham = (len(ham_emails) + self.laplace_smoothing_factor) / (len(spam_emails) + len(ham_emails) + self.laplace_smoothing_factor * 2)
-        self.is_fitted = True
 
     def get_word_probability(self,word,class_word_count_dict,total_words_in_class):
         """Calculate the P(word|Class) with laplace smoothing"""
@@ -103,6 +102,8 @@ class TFNaiveBayesClassifier:
         #Final probabilities
         probability_spam_given_words /= total_probability
         probability_ham_given_words /= total_probability
+        
+        self.is_fitted = True
         
         return {
             'spam_probability': probability_spam_given_words,
