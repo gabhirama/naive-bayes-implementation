@@ -17,12 +17,14 @@ class TFNaiveBayesClassifier:
         self.vocab_size = 0
         self.is_fitted = False
         
-    def fit(self,spam_emails,ham_emails):
+    def fit(self,emails, labels):
         # Edge cases where .fit() method might fail due to invalid inputs
-        if not isinstance(spam_emails,dict) or not isinstance(ham_emails,dict):
-            raise ValueError("spam_emails and ham_emails must be dictionaries with email content as values")
-        if len(spam_emails) == 0 or len(ham_emails) == 0:
-            raise ValueError("Both spam_emails and ham_emails must contain at least one email for training")
+        if not isinstance(emails, list) or not isinstance(labels, list):
+            raise ValueError("Emails and labels must be lists")
+        if len(emails) == 0 or len(labels) == 0:
+            raise ValueError("Both emails and labels must contain at least one email for training")
+        if len(emails) != len(labels):
+            raise ValueError("Emails and labels must have the same length")
         if self.is_fitted:
             raise RuntimeError("Classifier is already fitted. Create a new instance to fit again")
         
@@ -32,6 +34,9 @@ class TFNaiveBayesClassifier:
         # self.total_words_in_spam = 0
         # self.total_words_in_ham = 0
         # self.vocab.clear()
+        
+        spam_emails = {email: {'content': emails[i]} for i, email in enumerate(emails) if labels[i] == 'spam'}
+        ham_emails = {email: {'content': emails[i]} for i, email in enumerate(emails) if labels[i] == 'ham'}
         
         for email in list(spam_emails.values()):
             words = email['content'].split()
@@ -117,6 +122,22 @@ class TFNaiveBayesClassifier:
             return 'spam'
         else:
             return 'ham'
+        
+    def score(self, emails,labels):
+        """Calculate the accuracy of the classifier on the given emails and labels"""
+        if not self.is_fitted:
+            raise RuntimeError("Classifier is not fitted yet. Call fit() method before scoring.")
+        
+        if len(emails) != len(labels):
+            raise ValueError("Number of emails and labels must be the same")
+        
+        correct_predictions = 0
+        for email, label in zip(emails, labels):
+            predicted_label = self.classify(email)
+            if predicted_label == label:
+                correct_predictions += 1
+        
+        return correct_predictions / len(emails)
         
     def save_model(self, file_path):
         """Save the trained model to a file"""

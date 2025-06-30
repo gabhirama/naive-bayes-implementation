@@ -1,4 +1,4 @@
-import os.path
+import os
 import base64
 from typing import Optional
 from google.auth.transport.requests import Request
@@ -9,6 +9,9 @@ from googleapiclient.errors import HttpError
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+credentials_dir = os.path.join(BASE_DIR, 'config', 'credentials.json')
 
 def authenticate_gmail():
     """
@@ -24,7 +27,7 @@ def authenticate_gmail():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(r'config\credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(credentials_dir, SCOPES)
             creds = flow.run_local_server(port=8080)
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
