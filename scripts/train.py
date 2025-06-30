@@ -8,24 +8,26 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.classifier_copy import TFNaiveBayesClassifier as Classifier
 from src.gmail_api import fetch_spam_and_ham
 
-def train_NB_classifier():
-    
+def get_emails():
     if os.path.exists('token.json'):
         os.remove('token.json')
         spam_mails, ham_mails = fetch_spam_and_ham(100)
     else:
         spam_mails, ham_mails = fetch_spam_and_ham(100)
-        
-    print("Imported spam and ham emails")
-        
+    
     spam_mails = {msg_id: metadata for msg_id, metadata in spam_mails.items() if metadata['content'] != ''}
     ham_mails = {msg_id: metadata for msg_id, metadata in ham_mails.items() if metadata['content'] != ''}
     
-    print("Filtered out empty emails....")
-    
+    return spam_mails, ham_mails
+
+def train_NB_classifier():
+    spam_mails, ham_mails = get_emails()
     classifier = Classifier()
     print("Training Naive Bayes classifier")
-    classifier.fit(spam_emails=spam_mails, ham_emails=ham_mails)
+    # Prepare emails and labels for the fit method
+    emails = list(spam_mails.values()) + list(ham_mails.values())
+    labels = [1] * len(spam_mails) + [0] * len(ham_mails)
+    classifier.fit(emails=emails, labels=labels)
     
     date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
@@ -36,6 +38,7 @@ def train_NB_classifier():
         pickle.dump(classifier,file)
 
     print(f"Training completed and model saved as 'TF_NaiveBayes_Classifier_{date}.pkl'.")
+    return classifier
 
 if __name__ == "__main__":
     train_NB_classifier()
